@@ -1,23 +1,72 @@
-Project Title:
-Smart Radar and Password Protected Alarm System
-​Objective:
-The aim of this project is to design and implement a physical circuit of an audible and visual smart alarm system using the Arduino. The system scans a 360-degree area using a servo motor and an ultrasonic sensor. If any object is detected within the scanned area, its distance is displayed on the LCD screen, a green LED illuminates, and the system continues scanning. If the object approaches closer than the predetermined distance, the alarm system is activated; the green LED turns off, the red LED turns on, the buzzer starts beeping, the scanning stops, and the system locks itself. The alarm system remains active even when the object is moved away until the correct password is entered via the 3x4 matrix keypad.
+📡 Smart Radar and Password Protected Alarm System
+🎯 Project Objective
 
-​
+This project aims to design and implement a smart alarm system using an Arduino Uno. The system performs a 360-degree scan using a servo motor and an ultrasonic sensor to detect objects in its surroundings.
 
-​Module Distribution:
-​1-Ultrasonic Distance Detection Module
-2-​LCD Display Module (I2C/Parallel)
-​3-Servo Motor Scanning Module
-​4-Alarm Module (LED and buzzer)
-​5-Keypad Security Module
-6-Real-Time Radar Visualization Module (Serial Port Mapping)
+When an object is detected, the system displays the distance on an LCD screen and activates a green LED. If the object comes closer than a predefined threshold distance, the system triggers an alarm:
 
-​Hardware:
-The project will be built using the Arduino Uno platform. The system will be programmed using the Arduino (C++) language. The design focuses on integrating real-time sensor data with mechanical movement and visual feedback.
-​Workload Justification:
-This project involves complex hardware-software integration including PWM-based servo control, ultrasonic pulse timing, matrix keypad scanning, and real-time serial data transmission. To meet the visualization requirement, the system sends angle and distance data to the Serial Monitor, allowing for a graphical radar representation on a PC.
+The green LED turns off
+The red LED turns on
+The buzzer starts beeping
+The scanning process stops
+The system locks itself
 
-​Task Sharing:
-Begüm Asya Eroğlu: Development of Arduino code structure, ultrasonic sensing algorithms, LCD display integration, and Serial Monitor data formatting.
-Fırat Cem Başoğlu: Development of servo motor control, alarm system hardware (LED + buzzer), keypad password authentication, and PC-Arduino serial communication.
+The alarm remains active even if the object moves away, and it can only be deactivated by entering the correct password via a 3x4 matrix keypad.
+
+🧩 System Modules
+Ultrasonic Distance Detection Module
+LCD Display Module (I2C / Parallel)
+Servo Motor Scanning Module
+Alarm Module (LED & Buzzer)
+Keypad Security Module
+Real-Time Radar Visualization Module (Serial Port Mapping)
+🔧 Hardware & Technologies
+Arduino Uno
+Ultrasonic Sensor (HC-SR04)
+Servo Motor
+16x2 LCD Display
+3x4 Matrix Keypad
+LEDs (Red & Green)
+Buzzer
+
+Programming Language: Arduino (C/C++)
+
+⚙️ System Design
+
+The system integrates real-time sensor data with mechanical movement and visual feedback. The ultrasonic sensor continuously measures distance while the servo motor scans the environment.
+
+Distance and angle data are transmitted via the serial port to enable real-time radar visualization on a computer.
+
+💻 Real-Time Visualization
+
+The system sends angle and distance data to the Serial Monitor, allowing a radar-like graphical representation to be created on a PC.
+
+🧠 Workload Justification
+
+This project involves complex hardware and software integration, including:
+
+PWM-based servo motor control
+Ultrasonic pulse timing and distance calculation
+Matrix keypad scanning and password validation
+LCD communication
+Real-time serial data transmission
+👥 Task Distribution
+Begüm Asya Eroğlu
+Arduino code structure
+Ultrasonic sensing algorithms
+LCD integration
+Serial data formatting
+Fırat Cem Başoğlu
+Servo motor control
+Alarm system (LED + buzzer)
+Keypad authentication
+Serial communication (PC-Arduino)
+🚀 How to Run
+Connect all hardware components according to the circuit diagram.
+Upload the Arduino code to the Arduino Uno.
+Open the Serial Monitor to observe radar data.
+Power the system and observe scanning behavior.
+📌 Notes
+The threshold distance can be adjusted in the code.
+The password is defined in the Arduino program.
+Make sure all connections are secure before powering the system.
