@@ -25,7 +25,7 @@ Arduino Uno
 Ultrasonic Sensor (HC-SR04)
 Servo Motor
 16x2 LCD Display
-3x4 Matrix Keypad
+
 LEDs (Red & Green)
 Buzzer
 
