@@ -61,12 +61,4 @@ Servo motor control
 Alarm system (LED + buzzer)
 Keypad authentication
 Serial communication (PC-Arduino)
-🚀 How to Run
-Connect all hardware components according to the circuit diagram.
-Upload the Arduino code to the Arduino Uno.
-Open the Serial Monitor to observe radar data.
-Power the system and observe scanning behavior.
-📌 Notes
-The threshold distance can be adjusted in the code.
-The password is defined in the Arduino program.
-Make sure all connections are secure before powering the system.
+
