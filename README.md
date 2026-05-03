@@ -1,4 +1,4 @@
-Smart Radar and IR Password Controlled Alarm System
+Smart-Radar-and-Password-Protected-Alarm-System
 
 
 Project Objective:
