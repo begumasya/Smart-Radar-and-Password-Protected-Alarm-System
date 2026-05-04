@@ -55,7 +55,7 @@ void buzzerGuncelle() {
 }
 
 void loop() {
-  buzzerGuncelle(); // her loop başında buzzer güncelle
+  buzzerGuncelle(); 
 
   if (IrReceiver.decode()) {
     uint8_t kod = IrReceiver.decodedIRData.command;
