@@ -1,0 +1,169 @@
+#include <LiquidCrystal.h>
+#include <IRremote.hpp>
+#include <Servo.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+Servo servo;
+
+const int trigPin = A4, echoPin = A0, irPin = 7, servoPin = A2;
+const int buzzerPin = 13, yesilLed = 9, kirmiziLed = 8;
+
+int aci = 0, aciYon = 10;
+unsigned long radarZaman = 0;
+unsigned long sifreEkranZaman = 0;
+unsigned long sonIRZamani = 0;
+unsigned long buzzerZaman = 0;
+bool sistemKilitli = false;
+bool buzzerDurum = false;
+bool buzzerAktif = false;
+String girilenSifre = "";
+
+void setup() {
+  Serial.begin(9600);
+  IrReceiver.begin(irPin, DISABLE_LED_FEEDBACK);
+  servo.attach(servoPin);
+  pinMode(trigPin, OUTPUT); pinMode(echoPin, INPUT);
+  pinMode(buzzerPin, OUTPUT); pinMode(yesilLed, OUTPUT);
+  pinMode(kirmiziLed, OUTPUT);
+
+  lcd.begin(16, 2);
+  lcd.print("SISTEM HAZIR");
+  delay(1000);
+  lcd.clear();
+}
+
+int kodToRakam(int kod) {
+  switch (kod) {
+    case 0x19: return 0; case 0x45: return 1; case 0x46: return 2;
+    case 0x47: return 3; case 0x44: return 4; case 0x40: return 5;
+    case 0x43: return 6; case 0x07: return 7; case 0x0F: return 8;
+    case 0x09: return 9; default: return -1;
+  }
+}
+
+void buzzerGuncelle() {
+  if (buzzerAktif) {
+    unsigned long simdi = millis();
+    if (simdi - buzzerZaman >= 1) {
+      buzzerZaman = simdi;
+      buzzerDurum = !buzzerDurum;
+      digitalWrite(buzzerPin, buzzerDurum);
+    }
+  } else {
+    digitalWrite(buzzerPin, LOW);
+  }
+}
+
+void loop() {
+  buzzerGuncelle(); // her loop başında buzzer güncelle
+
+  if (IrReceiver.decode()) {
+    uint8_t kod = IrReceiver.decodedIRData.command;
+    uint8_t flags = IrReceiver.decodedIRData.flags;
+    IrReceiver.resume();
+
+    if (!(flags & IRDATA_FLAGS_IS_REPEAT) && kod != 0x0) {
+      unsigned long simdi = millis();
+      if (simdi - sonIRZamani >= 800) {
+        sonIRZamani = simdi;
+        int rakam = kodToRakam(kod);
+
+        if (rakam >= 0) {
+          sifreEkranZaman = millis();
+          girilenSifre += String(rakam);
+          if (girilenSifre.length() > 4) girilenSifre = girilenSifre.substring(1);
+
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("SIFRE GIRILIYOR:");
+          lcd.setCursor(0, 1);
+          lcd.print("-> ");
+          lcd.print(girilenSifre);
+
+        } else if (kod == 0x1C) {
+          if (girilenSifre == "2015" && !sistemKilitli) {
+            sistemKilitli = true;
+            buzzerAktif = false;
+            digitalWrite(yesilLed, LOW);
+            digitalWrite(kirmiziLed, LOW);
+            servo.detach();
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("SISTEM KAPALI");
+            lcd.setCursor(0, 1);
+            lcd.print("                ");
+
+          } else if (girilenSifre == "2009" && sistemKilitli) {
+            sistemKilitli = false;
+            servo.attach(servoPin);
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("SISTEM ACILDI");
+            lcd.setCursor(0, 1);
+            lcd.print("                ");
+            delay(1500);
+            lcd.clear();
+
+          } else {
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("YANLIS SIFRE!");
+            lcd.setCursor(0, 1);
+            lcd.print("                ");
+            delay(1000);
+            lcd.clear();
+          }
+          girilenSifre = "";
+          sifreEkranZaman = 0;
+        }
+      }
+    }
+  }
+
+  if (sistemKilitli) return;
+
+  if (millis() - radarZaman >= 200) {
+    radarZaman = millis();
+
+    servo.write(aci);
+    delay(8);
+
+    digitalWrite(trigPin, LOW); delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH); delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    long sure = pulseIn(echoPin, HIGH, 20000);
+    float uzaklik = (sure == 0) ? 400.0 : (sure * 0.034 / 2.0);
+
+    static float sonUzaklik = -1;
+    static int sonAci = -1;
+    if (abs(uzaklik - sonUzaklik) > 2.0 || aci != sonAci) {
+      Serial.print(aci); Serial.print(","); Serial.println(uzaklik);
+      sonUzaklik = uzaklik;
+      sonAci = aci;
+    }
+
+    if (millis() - sifreEkranZaman > 3000) {
+      lcd.setCursor(0, 0);
+      if (uzaklik < 100 && uzaklik > 0) {
+        lcd.print("!! YAKIN NESNE !");
+        lcd.setCursor(0, 1);
+        lcd.print(uzaklik, 1);
+        lcd.print(" cm         ");
+        digitalWrite(kirmiziLed, HIGH);
+        digitalWrite(yesilLed, LOW);
+        buzzerAktif = true;
+      } else {
+        lcd.print("Uzaklik:        ");
+        lcd.setCursor(0, 1);
+        lcd.print((int)uzaklik);
+        lcd.print(" cm         ");
+        digitalWrite(kirmiziLed, LOW);
+        digitalWrite(yesilLed, HIGH);
+        buzzerAktif = false;
+      }
+    }
+
+    aci += aciYon;
+    if (aci >= 180 || aci <= 0) aciYon *= -1;
+  }
+}
